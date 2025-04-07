@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Réclamations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f36100;
+            padding-bottom: 10px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f36100;
+        }
+        .title {
+            font-size: 22px;
+            margin: 20px 0;
+            color: #333;
+        }
+        .summary {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .summary-item {
+            display: inline-block;
+            margin-right: 30px;
+            margin-bottom: 10px;
+        }
+        .summary-value {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        .status-success {
+            background-color: #28a745;
+        }
+        .status-warning {
+            background-color: #f36100;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f36100;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Coachini</div>
+        <div>Gestion des Réclamations</div>
+    </div>
+    
+    <div class="title">Liste des Réclamations</div>
+    
+    <div class="summary">
+        <div class="summary-item">
+            <div>Total des réclamations:</div>
+            <div class="summary-value">{{ reclamations|length }}</div>
+        </div>
+        <div class="summary-item">
+            <div>Réclamations en cours:</div>
+            <div class="summary-value">{{ reclamations|filter(r => not r.statut)|length }}</div>
+        </div>
+        <div class="summary-item">
+            <div>Réclamations traitées:</div>
+            <div class="summary-value">{{ reclamations|filter(r => r.statut)|length }}</div>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Adhérent</th>
+                <th>Coach concerné</th>
+                <th>Description</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reclamation in reclamations %}
+                <tr>
+                    <td>{{ reclamation.idReclamation }}</td>
+                    <td>{{ reclamation.date|date('d/m/Y') }}</td>
+                    <td>{{ reclamation.typeR }}</td>
+                    <td>
+                        {% if reclamation.adherent %}
+                            {{ reclamation.adherent.nom }} {{ reclamation.adherent.prenom }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if reclamation.coach %}
+                            {{ reclamation.coach.nom }} {{ reclamation.coach.prenom }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ reclamation.description|striptags|slice(0, 50) }}{% if reclamation.description|length > 50 %}...{% endif %}</td>
+                    <td>
+                        {% if reclamation.statut %}
+                            <span class="status status-success">Traitée</span>
+                        {% else %}
+                            <span class="status status-warning">En cours</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Document généré le {{ "now"|date('d/m/Y à H:i') }} - Coachini Administration</p>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,171 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détails de la Réclamation - Admin Coachini{% endblock %}
+
+{% block page_title %}Détails de la Réclamation #{{ reclamation.idReclamation }}{% endblock %}
+{% block breadcrumb %}
+    <a href="{{ path('app_admin_reclamation_index') }}">Réclamations</a> / Détails
+{% endblock %}
+
+{% block body %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        </div>
+    {% endfor %}
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Réclamation Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-circle mr-2"></i> Réclamation #{{ reclamation.idReclamation }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong><i class="fas fa-calendar-alt mr-2"></i> Date:</strong> {{ reclamation.date|date('d/m/Y') }}</p>
+                            <p><strong><i class="fas fa-tag mr-2"></i> Type:</strong> {{ reclamation.typeR }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong><i class="fas fa-user mr-2"></i> Adhérent:</strong>
+                                {% if reclamation.adherent %}
+                                    {{ reclamation.adherent.nom }} {{ reclamation.adherent.prenom }}
+                                {% else %}
+                                    <span class="text-muted">Non spécifié</span>
+                                {% endif %}
+                            </p>
+                            <p>
+                                <strong><i class="fas fa-user-tie mr-2"></i> Coach concerné:</strong>
+                                {% if reclamation.coach %}
+                                    {{ reclamation.coach.nom }} {{ reclamation.coach.prenom }}
+                                {% else %}
+                                    <span class="text-muted">Non spécifié</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="font-weight-bold"><i class="fas fa-comment-alt mr-2"></i> Description de la réclamation</h6>
+                        <div class="p-3 bg-light rounded">
+                            {{ reclamation.description|nl2br }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>
+                            <strong>Statut:</strong> 
+                            {% if reclamation.statut %}
+                                <span class="badge badge-success">Traitée</span>
+                            {% else %}
+                                <span class="badge badge-warning">En attente</span>
+                            {% endif %}
+                        </span>
+                        <div>
+                            <a href="{{ path('app_admin_reclamation_pdf', {'id': reclamation.idReclamation}) }}" class="btn btn-danger">
+                                <i class="fas fa-file-pdf mr-1"></i> Télécharger PDF
+                            </a>
+                            <a href="{{ path('app_admin_reclamation_index') }}" class="btn btn-secondary ml-2">
+                                <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Existing Responses Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-comments mr-2"></i> Réponses ({{ reponses|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if reponses|length > 0 %}
+                        {% for reponse in reponses %}
+                            <div class="media mb-4">
+                                <img src="{{ asset('img/admin-avatar.jpg') }}" class="mr-3 rounded-circle" style="width: 50px; height: 50px;" alt="Admin">
+                                <div class="media-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mt-0 mb-1">Admin <small class="text-muted ml-2">{{ reponse.dateReponse|date('d/m/Y à H:i') }}</small></h6>
+                                        <span class="badge {{ reponse.status == 'valider' ? 'badge-success' : 'badge-warning' }}">
+                                            {{ reponse.status == 'valider' ? 'Validée' : 'En attente' }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-0">{{ reponse.contenu|nl2br }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i> Aucune réponse n'a encore été fournie pour cette réclamation.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Quick Info Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle mr-2"></i> Informations</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            ID Réclamation
+                            <span class="badge badge-primary">{{ reclamation.idReclamation }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Date de création
+                            <span>{{ reclamation.date|date('d/m/Y') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Statut
+                            {% if reclamation.statut %}
+                                <span class="badge badge-success">Traitée</span>
+                            {% else %}
+                                <span class="badge badge-warning">En attente</span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Nombre de réponses
+                            <span class="badge badge-info">{{ reponses|length }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Add Response Card -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-reply mr-2"></i> Répondre</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_errors(form) }}
+                        
+                        <div class="form-group">
+                            {{ form_label(form.contenu) }}
+                            {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': 5, 'placeholder': 'Votre réponse à cette réclamation...'}}) }}
+                            {{ form_errors(form.contenu) }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-block">
+                            <i class="fas fa-paper-plane mr-1"></i> Envoyer la réponse
+                        </button>
+                    {{ form_end(form) }}
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle mr-1"></i> Lorsque vous envoyez une réponse, la réclamation passe automatiquement au statut "Traitée".
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

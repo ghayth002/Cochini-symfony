@@ -1,0 +1,508 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Réclamations - Coachini{% endblock %}
+
+{% block Hero_Section_Begin %}
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg" data-setbg="{{ asset('img/breadcrumb-bg.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb-text">
+                    <h2>Mes Réclamations</h2>
+                    <div class="bt-option">
+                        <a href="/">Accueil</a>
+                        <span>Réclamations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+{% endblock %}
+
+{% block body %}
+<section class="blog-details-section spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success animate__animated animate__fadeIn">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                
+                <div class="reclamation-header">
+                    <div class="header-title">
+                        <h3><i class="fa fa-list-alt mr-2"></i> Liste de mes réclamations</h3>
+                        <div class="title-line"></div>
+                    </div>
+                    <a href="{{ path('app_reclamation_new') }}" class="primary-btn btn-hover">
+                        <i class="fa fa-plus mr-2"></i> Nouvelle réclamation
+                    </a>
+                </div>
+                
+                {% if reclamations|length > 0 %}
+                <div class="reclamation-wrapper">
+                    <div class="table-responsive">
+                        <table class="table table-bordered custom-table">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th width="5%">ID</th>
+                                    <th width="15%">Type</th>
+                                    <th width="12%">Date</th>
+                                    <th width="43%">Description</th>
+                                    <th width="10%">Status</th>
+                                    <th width="15%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reclamation in reclamations %}
+                                <tr class="table-row-animate animate__animated animate__fadeIn" style="animation-delay: {{ loop.index * 0.1 }}s">
+                                    <td>{{ reclamation.idReclamation }}</td>
+                                    <td>{{ reclamation.typeR }}</td>
+                                    <td>{{ reclamation.date|date('d-m-Y') }}</td>
+                                    <td>{{ reclamation.description|slice(0, 100) }}{% if reclamation.description|length > 100 %}...{% endif %}</td>
+                                    <td>
+                                        {% if reclamation.statut == true %}
+                                            <span class="badge badge-success">Traitée</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">En cours</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('app_reclamation_show', {'id': reclamation.idReclamation}) }}" class="btn btn-sm btn-info btn-hover">
+                                            <i class="fa fa-eye"></i> Voir
+                                        </a>
+                                        {% if not reclamation.statut %}
+                                            <a href="{{ path('app_reclamation_edit', {'id': reclamation.idReclamation}) }}" class="btn btn-sm btn-primary btn-hover ml-1">
+                                                <i class="fa fa-edit"></i> Modifier
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger btn-hover ml-1" data-toggle="modal" data-target="#deleteModal{{ reclamation.idReclamation }}">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                            
+                                            <!-- Delete Modal for each reclamation -->
+                                            <div class="modal fade" id="deleteModal{{ reclamation.idReclamation }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ reclamation.idReclamation }}" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteModalLabel{{ reclamation.idReclamation }}">Confirmer la suppression</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Êtes-vous sûr de vouloir supprimer la réclamation #{{ reclamation.idReclamation }} ? Cette action est irréversible.</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                                            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.idReclamation}) }}" class="d-inline">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.idReclamation) }}">
+                                                                <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state animate__animated animate__fadeIn">
+                    <i class="fa fa-comments-o" aria-hidden="true"></i>
+                    <h4>Aucune réclamation pour le moment</h4>
+                    <p>Vous n'avez pas encore soumis de réclamation. Si vous rencontrez un problème ou avez une suggestion, n'hésitez pas à nous en faire part.</p>
+                    <a href="{{ path('app_reclamation_new') }}" class="btn primary-btn btn-hover">
+                        <i class="fa fa-plus-circle"></i> Créer une réclamation
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .reclamation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        background-color: #222;
+        padding: 25px 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 1s ease;
+        position: relative;
+        overflow: hidden;
+        border-color: #333;
+    }
+    
+    .reclamation-header:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: #f36100;
+    }
+    
+    .header-title {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .header-title h3 {
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #fff;
+        font-size: 24px;
+    }
+    
+    .title-line {
+        width: 50px;
+        height: 3px;
+        background: #f36100;
+        margin-top: 8px;
+    }
+    
+    .reclamation-wrapper {
+        background-color: #222;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+    }
+    
+    .custom-table {
+        background-color: transparent;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: none;
+        transition: all 0.3s ease;
+        border: none;
+        margin-bottom: 0;
+        color: #fff;
+    }
+    
+    .custom-table:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+    
+    .blog-details-section {
+        padding-top: 100px;
+        padding-bottom: 100px;
+        background-color: #151515;
+    }
+    
+    .primary-btn {
+        background: #f36100;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 1px;
+        position: relative;
+        z-index: 1;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    
+    .primary-btn:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        z-index: -1;
+    }
+    
+    .primary-btn:hover:before {
+        width: 100%;
+    }
+    
+    .reclamation-container {
+        margin-top: 0;
+    }
+    
+    .custom-table th {
+        background-color: #f36100;
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 18px 15px;
+        text-align: center;
+        letter-spacing: 0.5px;
+        font-size: 15px;
+        text-transform: uppercase;
+    }
+    
+    .custom-table td {
+        vertical-align: middle;
+        padding: 18px 15px;
+        transition: all 0.2s ease;
+        text-align: center;
+        border-color: #333;
+    }
+    
+    .custom-table td:nth-child(4) {
+        text-align: left;
+    }
+    
+    .table-row-animate {
+        transition: all 0.3s ease;
+    }
+    
+    .table-row-animate:hover {
+        background-color: #2a2a2a;
+        transform: scale(1.01);
+    }
+    
+    .custom-table tr:hover td {
+        color: #fff;
+    }
+    
+    .badge {
+        font-size: 85%;
+        padding: 8px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        min-width: 100px;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .badge-success {
+        background-color: #28a745;
+    }
+    
+    .badge-warning {
+        background-color: #f36100;
+        color: white;
+    }
+    
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        color: white;
+        transition: all 0.3s ease;
+        padding: 8px 20px;
+        border-radius: 50px;
+    }
+    
+    .btn-primary {
+        background-color: #f36100;
+        border-color: #f36100;
+        color: white;
+        transition: all 0.3s ease;
+        padding: 8px 20px;
+        border-radius: 50px;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+        transition: all 0.3s ease;
+        padding: 8px 20px;
+        border-radius: 50px;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    
+    .btn-primary:hover {
+        background-color: #e05a00;
+        border-color: #e05a00;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: #222;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin: 30px 0;
+        color: #fff;
+    }
+    
+    .empty-state i {
+        font-size: 70px;
+        color: #f36100;
+        margin-bottom: 20px;
+        opacity: 0.8;
+    }
+    
+    .empty-state h4 {
+        font-size: 24px;
+        color: #fff;
+        margin-bottom: 15px;
+    }
+    
+    .empty-state p {
+        color: #aaa;
+        max-width: 500px;
+        margin: 0 auto 25px auto;
+    }
+    
+    .empty-state .btn {
+        padding: 12px 25px;
+        border-radius: 50px;
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    .fade-in {
+        animation: fadeIn 1s ease;
+    }
+    
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .table-row-animate:nth-child(odd) {
+        animation: fadeInLeft 0.5s ease;
+    }
+    
+    .table-row-animate:nth-child(even) {
+        animation: fadeInRight 0.5s ease;
+    }
+    
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .reclamation-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .badge {
+            min-width: 80px;
+        }
+    }
+    
+    .modal-content {
+        background-color: #333;
+        color: #fff;
+        border-radius: 10px;
+        border: 1px solid #444;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #444;
+        background-color: #222;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #444;
+        background-color: #222;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    
+    .close {
+        color: #fff;
+        text-shadow: none;
+    }
+    
+    .close:hover {
+        color: #f36100;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation class to table rows
+        const tableRows = document.querySelectorAll('.table-row-animate');
+        tableRows.forEach((row, index) => {
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        // Add hover effect to buttons
+        const buttons = document.querySelectorAll('.btn-hover');
+        buttons.forEach(button => {
+            button.addEventListener('mouseover', function() {
+                this.classList.add('animate__animated', 'animate__pulse');
+            });
+            button.addEventListener('mouseout', function() {
+                this.classList.remove('animate__animated', 'animate__pulse');
+            });
+        });
+    });
+</script>
+{% endblock %} 

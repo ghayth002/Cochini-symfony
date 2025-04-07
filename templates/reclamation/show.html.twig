@@ -1,0 +1,668 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de la Réclamation - Coachini{% endblock %}
+
+{% block Hero_Section_Begin %}
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg" data-setbg="{{ asset('img/breadcrumb-bg.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb-text">
+                    <h2>Détails de la Réclamation</h2>
+                    <div class="bt-option">
+                        <a href="/">Accueil</a>
+                        <a href="{{ path('app_reclamation_index') }}">Réclamations</a>
+                        <span>Détails</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+{% endblock %}
+
+{% block body %}
+<section class="blog-details-section spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="reclamation-container">
+                    <div class="card mb-4 animate__animated animate__fadeInUp">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h4 class="m-0"><i class="fa fa-file-text-o mr-2 icon-highlight"></i> Réclamation #{{ reclamation.idReclamation }}</h4>
+                            <span class="badge badge-green pulse-green">{{ reclamation.date|date('d/m/Y') }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="reclamation-details">
+                                <div class="mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+                                    <h5 class="text-primary"><i class="fa fa-tag mr-2 icon-highlight"></i> Type de réclamation</h5>
+                                    <p class="ml-4 type-badge">{{ reclamation.typeR }}</p>
+                                </div>
+                                
+                                {% if reclamation.coach %}
+                                <div class="mb-4 animate__animated animate__fadeInUp animate__delay-2s">
+                                    <h5 class="text-primary"><i class="fa fa-user mr-2 icon-highlight"></i> Coach concerné</h5>
+                                    <div class="ml-4 coach-info">
+                                        <div class="avatar">{{ reclamation.coach.nom|first ~ reclamation.coach.prenom|first }}</div>
+                                        <div>{{ reclamation.coach.nom }} {{ reclamation.coach.prenom }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mb-3 animate__animated animate__fadeInUp animate__delay-3s">
+                                    <h5 class="text-primary"><i class="fa fa-comment mr-2 icon-highlight"></i> Description</h5>
+                                    <div class="p-4 bg-light rounded ml-4 description-box">
+                                        {{ reclamation.description|nl2br }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-status-label">Statut: </span>
+                                {% if reclamation.statut %}
+                                    <span class="badge badge-success">Traitée</span>
+                                {% else %}
+                                    <span class="badge badge-warning">En cours</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="text-date-info mr-3">Soumise le {{ reclamation.date|date('d/m/Y') }}</span>
+                                {% if not reclamation.statut %}
+                                <div class="action-buttons">
+                                    <a href="{{ path('app_reclamation_edit', {'id': reclamation.idReclamation}) }}" class="btn btn-sm btn-primary btn-icon btn-hover">
+                                        <i class="fa fa-edit icon-highlight"></i> Modifier
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger btn-icon btn-hover ml-2" data-toggle="modal" data-target="#deleteModal">
+                                        <i class="fa fa-trash icon-highlight"></i> Supprimer
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="reponses-section">
+                        <div class="d-flex justify-content-between align-items-center mb-3 animate__animated animate__fadeInUp animate__delay-4s">
+                            <h4><i class="fa fa-comments mr-2 icon-highlight"></i> Réponses ({{ reponses|length }})</h4>
+                        </div>
+                        
+                        {% if reponses|length > 0 %}
+                            {% for reponse in reponses %}
+                                <div class="card mb-3 reponse-card animate__animated animate__fadeInUp animate__delay-{{ loop.index + 4 }}s">
+                                    <div class="card-header d-flex justify-content-between align-items-center {{ reponse.status == 'valider' ? 'bg-success' : 'bg-warning' }} text-white">
+                                        <div>
+                                            <i class="fa fa-comment-o mr-2 icon-highlight"></i> Réponse du {{ reponse.dateReponse|date('d/m/Y') }}
+                                        </div>
+                                        <span class="badge badge-green pulse-green">
+                                            {{ reponse.status == 'valider' ? 'Validée' : 'En attente' }}
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="response-content">
+                                            <div class="avatar-admin">Admin</div>
+                                            <div class="bubble">
+                                                {{ reponse.contenu|nl2br }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info text-center animate__animated animate__fadeInUp animate__delay-4s">
+                                <div class="waiting-animation">
+                                    <i class="fa fa-hourglass-half fa-2x mb-3 icon-highlight"></i>
+                                    <div class="dot-pulse"></div>
+                                </div>
+                                <p>Aucune réponse pour le moment. Notre équipe étudie votre réclamation.</p>
+                                <small>Nous vous notifierons par email dès qu'une réponse sera disponible.</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="return-button-container animate__animated animate__fadeInUp animate__delay-5s">
+                        <a href="{{ path('app_reclamation_index') }}" class="primary-btn btn-hover">
+                            <i class="fa fa-arrow-left mr-1 icon-highlight"></i> Retour à mes réclamations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.idReclamation}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.idReclamation) }}">
+                    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .blog-details-section {
+        padding-top: 100px;
+        padding-bottom: 100px;
+        background-color: #151515;
+    }
+    
+    .reclamation-container {
+        background-color: #222;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+    }
+    
+    .card {
+        background-color: #222;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        color: #fff;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+        padding: 18px 25px;
+    }
+    
+    .bg-primary {
+        background-color: #f36100 !important;
+    }
+    
+    .text-primary {
+        color: #f36100 !important;
+    }
+    
+    .card-body {
+        background-color: #222;
+    }
+    
+    .reclamation-details h5 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .reclamation-details h5 i {
+        margin-right: 10px;
+        width: 24px;
+        text-align: center;
+    }
+    
+    .reponse-card {
+        transition: all 0.3s ease;
+    }
+    
+    .reponse-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .bg-success {
+        background-color: #28a745 !important;
+    }
+    
+    .bg-warning {
+        background-color: #ffc107 !important;
+    }
+    
+    .bg-light {
+        background-color: #333 !important;
+    }
+    
+    .type-badge {
+        background-color: #333;
+        color: #f36100;
+    }
+    
+    .coach-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #f36100;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .description-box {
+        border-left: 4px solid #f36100;
+        background-color: #333 !important;
+        color: #ddd;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+    
+    .response-content {
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .avatar-admin {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #35b04c;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .bubble {
+        background-color: #333;
+        color: #ddd;
+        padding: 15px 20px;
+        border-radius: 15px;
+        position: relative;
+        flex-grow: 1;
+        border-top-left-radius: 0;
+    }
+    
+    .bubble:before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 0;
+        border-top: 10px solid #333;
+        border-left: 10px solid transparent;
+    }
+    
+    .badge {
+        font-size: 85%;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .badge-success {
+        background-color: #28a745;
+    }
+    
+    .badge-warning {
+        background-color: #f36100;
+        color: white;
+    }
+    
+    .badge-green {
+        background-color: #35b04c;
+        color: white;
+    }
+    
+    .pulse-green {
+        animation: pulse-green 2s infinite;
+    }
+    
+    @keyframes pulse-green {
+        0% {
+            box-shadow: 0 0 0 0 rgba(53, 176, 76, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(53, 176, 76, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(53, 176, 76, 0);
+        }
+    }
+    
+    .pulse-light {
+        animation: pulse-light 2s infinite;
+    }
+    
+    @keyframes pulse-light {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+    
+    .btn-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .waiting-animation {
+        position: relative;
+        margin-bottom: 15px;
+    }
+    
+    .dot-pulse {
+        position: relative;
+        left: -9999px;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: #35b04c;
+        color: #35b04c;
+        box-shadow: 9999px 0 0 -5px;
+        animation: dot-pulse 1.5s infinite linear;
+        animation-delay: 0.25s;
+        margin: 0 auto;
+    }
+
+    .dot-pulse::before, .dot-pulse::after {
+        content: '';
+        display: inline-block;
+        position: absolute;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: #35b04c;
+        color: #35b04c;
+    }
+
+    .dot-pulse::before {
+        box-shadow: 9984px 0 0 -5px;
+        animation: dot-pulse-before 1.5s infinite linear;
+        animation-delay: 0s;
+    }
+
+    .dot-pulse::after {
+        box-shadow: 10014px 0 0 -5px;
+        animation: dot-pulse-after 1.5s infinite linear;
+        animation-delay: 0.5s;
+    }
+
+    @keyframes dot-pulse-before {
+        0% {
+            box-shadow: 9984px 0 0 -5px;
+        }
+        30% {
+            box-shadow: 9984px 0 0 2px;
+        }
+        60%, 100% {
+            box-shadow: 9984px 0 0 -5px;
+        }
+    }
+
+    @keyframes dot-pulse {
+        0% {
+            box-shadow: 9999px 0 0 -5px;
+        }
+        30% {
+            box-shadow: 9999px 0 0 2px;
+        }
+        60%, 100% {
+            box-shadow: 9999px 0 0 -5px;
+        }
+    }
+
+    @keyframes dot-pulse-after {
+        0% {
+            box-shadow: 10014px 0 0 -5px;
+        }
+        30% {
+            box-shadow: 10014px 0 0 2px;
+        }
+        60%, 100% {
+            box-shadow: 10014px 0 0 -5px;
+        }
+    }
+    
+    /* Fixed positioning improvements */
+    .reponses-section {
+        margin-top: 40px;
+        background-color: #222;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .reponses-section h4 {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f36100;
+        display: inline-block;
+        color: #fff;
+    }
+    
+    .card-footer {
+        background-color: #1a1a1a;
+        color: #ccc;
+        padding: 15px 25px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .return-button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+    }
+    
+    .primary-btn {
+        background: #35b04c;
+        border: none;
+        padding: 14px 30px;
+        border-radius: 50px;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(53, 176, 76, 0.2);
+    }
+    
+    .primary-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(53, 176, 76, 0.3);
+        color: #fff;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .coach-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .avatar {
+            margin-bottom: 10px;
+        }
+        
+        .response-content {
+            flex-direction: column;
+        }
+        
+        .avatar-admin {
+            margin-bottom: 10px;
+            margin-right: 0;
+        }
+        
+        .bubble {
+            border-top-left-radius: 15px;
+        }
+        
+        .bubble:before {
+            display: none;
+        }
+    }
+    
+    .alert-info {
+        background-color: #1a1a1a;
+        border-color: #333;
+        color: #aaa;
+    }
+    
+    .text-muted {
+        color: #aaa !important;
+    }
+    
+    .text-status-label, .text-date-info {
+        color: #f8f9fa;
+        font-weight: 500;
+        text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    }
+    
+    .text-status-label {
+        margin-right: 5px;
+    }
+    
+    .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-icon i {
+        margin-right: 5px;
+    }
+    
+    .btn-primary {
+        background-color: #35b04c;
+        border-color: #35b04c;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2e9240;
+        border-color: #2e9240;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    
+    .modal-content {
+        background-color: #333;
+        color: #fff;
+        border-radius: 10px;
+        border: 1px solid #444;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid #444;
+        background-color: #222;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #444;
+        background-color: #222;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    
+    .close {
+        color: #fff;
+        text-shadow: none;
+    }
+    
+    .close:hover {
+        color: #35b04c;
+    }
+    
+    .icon-highlight {
+        color: #35b04c;
+        font-size: 1.1em;
+        text-shadow: 0 0 5px rgba(53, 176, 76, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-hover:hover .icon-highlight,
+    .card-header:hover .icon-highlight,
+    h5:hover .icon-highlight {
+        transform: scale(1.2);
+        text-shadow: 0 0 8px rgba(53, 176, 76, 0.5);
+    }
+    
+    .reponse-card .card-header .icon-highlight {
+        color: #ffffff;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+    
+    .primary-btn .icon-highlight {
+        color: white;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effect to buttons
+        const buttons = document.querySelectorAll('.btn-hover');
+        buttons.forEach(button => {
+            button.addEventListener('mouseover', function() {
+                this.classList.add('animate__animated', 'animate__pulse');
+            });
+            button.addEventListener('mouseout', function() {
+                this.classList.remove('animate__animated', 'animate__pulse');
+            });
+        });
+        
+        // Add hover effect to reponse cards
+        const reponseCards = document.querySelectorAll('.reponse-card');
+        reponseCards.forEach(card => {
+            card.addEventListener('mouseover', function() {
+                this.classList.add('animate__animated', 'animate__pulse');
+            });
+            card.addEventListener('mouseout', function() {
+                this.classList.remove('animate__animated', 'animate__pulse');
+            });
+        });
+    });
+</script>
+{% endblock %} 

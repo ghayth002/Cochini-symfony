@@ -1,0 +1,24 @@
+app_reclamation_index:
+    path: /reclamation
+    controller: App\Controller\ReclamationController::index
+    methods: [GET]
+
+app_reclamation_new:
+    path: /reclamation/new
+    controller: App\Controller\ReclamationController::new
+    methods: [GET, POST]
+
+app_reclamation_show:
+    path: /reclamation/{id}
+    controller: App\Controller\ReclamationController::show
+    methods: [GET]
+
+app_admin_reclamation_index:
+    path: /admin/reclamation
+    controller: App\Controller\ReclamationController::adminIndex
+    methods: [GET]
+
+app_admin_reclamation_show:
+    path: /admin/reclamation/{id}
+    controller: App\Controller\ReclamationController::adminShow
+    methods: [GET, POST] 

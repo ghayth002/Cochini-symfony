@@ -1,0 +1,206 @@
+{#{% extends 'base.html.twig' %}#}
+
+{#{% block title %}BMI Calculator{% endblock %}#}
+
+{#{% block body %}#}
+
+
+{#    <!-- Breadcrumb Section Begin -->#}
+{#    <section class="breadcrumb-section set-bg" data-setbg="{{ asset('img/breadcrumb-bg.jpg') }}">#}
+{#        <div class="container">#}
+{#            <div class="row">#}
+{#                <div class="col-lg-12 text-center">#}
+{#                    <div class="breadcrumb-text">#}
+{#                        <h2>BMI Calculator</h2>#}
+{#                        <div class="bt-option">#}
+
+{#                            <span>BMI Calculator</span>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </section>#}
+{#    <!-- Breadcrumb Section End -->#}
+
+{#    <!-- BMI Calculator Section Begin -->#}
+{#    <section class="bmi-calculator-section spad">#}
+{#        <div class="container">#}
+{#            <div class="row">#}
+{#                <!-- BMI Chart -->#}
+{#                <div class="col-lg-6">#}
+{#                    <div class="section-title chart-title">#}
+{#                        <span>Check Your Body</span>#}
+{#                        <h2>BMI CALCULATOR CHART</h2>#}
+{#                    </div>#}
+{#                    <div class="chart-table">#}
+{#                        <table>#}
+{#                            <thead>#}
+{#                                <tr>#}
+{#                                    <th>BMI</th>#}
+{#                                    <th>WEIGHT STATUS</th>#}
+{#                                </tr>#}
+{#                            </thead>#}
+{#                            <tbody>#}
+{#                                <tr><td class="point">Below 18.5</td><td>Underweight</td></tr>#}
+{#                                <tr><td class="point">18.5 - 24.9</td><td>Healthy</td></tr>#}
+{#                                <tr><td class="point">25.0 - 29.9</td><td>Overweight</td></tr>#}
+{#                                <tr><td class="point">30.0 - and Above</td><td>Obese</td></tr>#}
+{#                            </tbody>#}
+{#                        </table>#}
+{#                    </div>#}
+{#                </div>#}
+
+{#                <!-- BMI Calculator Form -->#}
+{#                <div class="col-lg-6">#}
+{#                    <div class="section-title chart-calculate-title">#}
+{#                        <span>Check Your Body</span>#}
+{#                        <h2>CALCULATE YOUR BMI</h2>#}
+{#                    </div>#}
+{#                    <div class="chart-calculate-form">#}
+{#                        <p>Entrez votre taille, poids, âge et sexe pour calculer votre IMC.</p>#}
+{#                        <form method="post" action="{{ path('bmi_calculator') }}">#}
+{#                            <div class="row">#}
+{#                                <div class="col-sm-6">#}
+{#                                    <input type="number" name="height" placeholder="Height / cm" required>#}
+{#                                </div>#}
+{#                                <div class="col-sm-6">#}
+{#                                    <input type="number" name="weight" placeholder="Weight / kg" required>#}
+{#                                </div>#}
+{#                                <div class="col-sm-6">#}
+{#                                    <input type="number" name="age" placeholder="Age">#}
+{#                                </div>#}
+{#                                <div class="col-sm-6">#}
+{#                                    <select name="sex" class="form-control">#}
+{#                                        <option value="male">Male</option>#}
+{#                                        <option value="female">Female</option>#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                                <div class="col-lg-12 text-center mt-3">#}
+{#                                    <button type="submit" class="btn btn-primary">Calculate</button>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </form>#}
+
+{#                        {% if bmi is not null %}#}
+{#                            <div class="mt-4 text-center">#}
+{#                                <h3 class="text-success">Votre IMC : {{ bmi|number_format(2) }}</h3>#}
+{#                                <p class="fw-bold">{{ message }}</p>#}
+{#                            </div>#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </section>#}
+{#    <!-- BMI Calculator Section End -->#}
+
+
+
+{#{% endblock %}#}
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Calculateur IMC{% endblock %}
+
+{% block body %}
+    <!-- Section Fil d'Ariane -->
+    <section class="breadcrumb-section set-bg" data-setbg="{{ asset('img/breadcrumb-bg.jpg') }}">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="breadcrumb-text">
+                        <h2>Calculateur IMC</h2>
+                        <div class="bt-option">
+                            <span>Calculateur IMC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Fin de la section Fil d'Ariane -->
+
+    <!-- Section Calculateur IMC -->
+    <section class="bmi-calculator-section spad">
+        <div class="container">
+            <div class="row">
+                <!-- Tableau des catégories IMC -->
+                <div class="col-lg-6">
+                    <div class="section-title chart-title">
+                        <span>Vérifiez votre corps</span>
+                        <h2>TABLEAU DE CALCUL IMC</h2>
+                    </div>
+                    <div class="chart-table">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>IMC</th>
+                                <th>ÉTAT DU POIDS</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr><td class="point">Moins de 18.5</td><td>Insuffisance pondérale</td></tr>
+                            <tr><td class="point">18.5 - 24.9</td><td>Poids normal</td></tr>
+                            <tr><td class="point">25.0 - 29.9</td><td>Surpoids</td></tr>
+                            <tr><td class="point">30.0 et plus</td><td>Obésité</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Formulaire Calculateur IMC -->
+                <div class="col-lg-6">
+                    <div class="section-title chart-calculate-title">
+                        <span>Vérifiez votre corps</span>
+                        <h2>CALCULEZ VOTRE IMC</h2>
+                    </div>
+                    <div class="chart-calculate-form">
+                        <p>Entrez votre taille, poids, âge et sexe pour calculer votre indice de masse corporelle.</p>
+                        <form method="post" action="{{ path('bmi_calculator') }}">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <input type="number" name="height" placeholder="Taille en cm" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="number" name="weight" placeholder="Poids en kg" required>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="number" name="age" placeholder="Âge">
+                                </div>
+                                <div class="col-sm-6">
+                                    <select name="sex" class="custom-select">
+                                        <option value="male">Homme</option>
+                                        <option value="female">Femme</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-12 text-center mt-3">
+                                    <button type="submit" class="btn btn-primary">Calculer</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        {% if bmi is not null %}
+                            <div class="mt-4 text-center">
+                                <h3 class="text-success">Votre IMC : {{ bmi|number_format(2) }}</h3>
+                                <p class="fw-bold">{{ message }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Fin de la section Calculateur IMC -->
+
+{% endblock %}

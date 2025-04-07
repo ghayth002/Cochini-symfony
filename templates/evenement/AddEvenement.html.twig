@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<title>Ajouter un événement</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+		<style>
+			body {
+				background: #151515;
+				color: #e2e8f0;
+			}
+
+			.container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2rem 20px;
+			}
+
+			.page-title {
+				font-size: 2.25rem;
+				font-weight: 700;
+				margin-bottom: 2rem;
+				color: #f8fafc;
+				text-align: center;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 1rem;
+			}
+
+			.page-title i {
+				color: #3b82f6;
+				font-size: 2.5rem;
+			}
+
+			.card {
+				background: #1e293b;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				border-radius: 1rem;
+				box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+			}
+
+			.card-body {
+				padding: 2rem;
+			}
+
+			.form-label {
+				color: #94a3b8;
+				font-weight: 500;
+				margin-bottom: 0.5rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+
+			.form-label i {
+				color: #3b82f6;
+			}
+
+			.form-control,
+			.form-select {
+				background: #0f172a;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				color: #e2e8f0;
+				padding: 0.75rem 1rem;
+				border-radius: 0.5rem;
+				transition: all 0.3s ease;
+			}
+
+			.form-control:focus,
+			.form-select:focus {
+				background: #0f172a;
+				border-color: #3b82f6;
+				color: #e2e8f0;
+				box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+			}
+
+			.form-control::placeholder {
+				color: #64748b;
+			}
+
+			textarea.form-control {
+				min-height: 120px;
+				resize: vertical;
+			}
+
+			.btn {
+				padding: 0.75rem 1.5rem;
+				border-radius: 0.5rem;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.025rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				transition: all 0.3s ease;
+			}
+
+			.btn-primary {
+				background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+				border: none;
+				color: white;
+			}
+
+			.btn-primary:hover {
+				transform: translateY(-0.125rem);
+				box-shadow: 0 0.5rem 1.25rem rgba(59, 130, 246, 0.3);
+				background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+			}
+
+			.btn-secondary {
+				background: #1e293b;
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				color: #e2e8f0;
+			}
+
+			.btn-secondary:hover {
+				background: #2d3748;
+				color: #e2e8f0;
+				border-color: rgba(255, 255, 255, 0.2);
+			}
+
+			.alert {
+				background: rgba(239, 68, 68, 0.1);
+				border: 1px solid rgba(239, 68, 68, 0.2);
+				color: #ef4444;
+				border-radius: 0.5rem;
+				padding: 1rem;
+				margin-bottom: 1.5rem;
+			}
+
+			@media(max-width: 768px) {
+				.container {
+					padding: 1rem;
+				}
+
+				.card-body {
+					padding: 1.5rem;
+				}
+
+				.page-title {
+					font-size: 1.75rem;
+				}
+
+				.btn {
+					width: 100%;
+					justify-content: center;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1 class="page-title">
+				<i class="bi bi-plus-circle"></i>
+				Ajouter un événement
+			</h1>
+
+			{% for message in app.flashes('error') %}
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<i class="bi bi-exclamation-triangle me-2"></i>
+					{{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			{% endfor %}
+
+			<div class="card">
+				<div class="card-body">
+					<form method="POST" enctype="multipart/form-data">
+						<div class="mb-4">
+							<label for="titre" class="form-label">
+								<i class="bi bi-calendar-event"></i>
+								Titre
+							</label>
+							<input type="text" class="form-control" id="titre" name="titre" required placeholder="Entrez le titre de l'événement">
+						</div>
+
+						<div class="mb-4">
+							<label for="description" class="form-label">
+								<i class="bi bi-card-text"></i>
+								Description
+							</label>
+							<textarea class="form-control" id="description" name="description" rows="3" required placeholder="Décrivez votre événement"></textarea>
+						</div>
+
+						<div class="mb-4">
+							<label for="dateDebut" class="form-label">
+								<i class="bi bi-calendar-event"></i>
+								Date de début
+							</label>
+							<input type="date" class="form-control" id="dateDebut" name="dateDebut" required>
+						</div>
+
+						<div class="mb-4">
+							<label for="dateFin" class="form-label">
+								<i class="bi bi-calendar-check"></i>
+								Date de fin
+							</label>
+							<input type="date" class="form-control" id="dateFin" name="dateFin" required>
+						</div>
+
+						<div class="mb-4">
+							<label for="lieu" class="form-label">
+								<i class="bi bi-geo-alt"></i>
+								Lieu
+							</label>
+							<input type="text" class="form-control" id="lieu" name="lieu" required placeholder="Entrez le lieu de l'événement">
+						</div>
+
+						<div class="mb-4">
+							<label for="etat" class="form-label">
+								<i class="bi bi-circle-fill"></i>
+								État
+							</label>
+							<select class="form-select" id="etat" name="etat" required>
+								<option value="">Sélectionnez un état</option>
+								<option value="ACTIF">Actif</option>
+								<option value="EXPIRE">Expiré</option>
+							</select>
+						</div>
+
+						<div class="mb-4">
+							<label for="prix" class="form-label">
+								<i class="bi bi-tag"></i>
+								Prix
+							</label>
+							<input type="number" step="0.01" class="form-control" id="prix" name="prix" required placeholder="Entrez le prix">
+						</div>
+
+						<div class="mb-4">
+							<label for="type" class="form-label">
+								<i class="bi bi-info-circle"></i>
+								Type
+							</label>
+							<select class="form-select" id="type" name="type" required>
+								<option value="">Sélectionnez un type</option>
+								<option value="CONFÉRENCE">Conférence</option>
+								<option value="FORMATION">Formation</option>
+								<option value="WORKSHOP">Workshop</option>
+							</select>
+						</div>
+
+						<div class="mb-4">
+							<label for="organisateur" class="form-label">
+								<i class="bi bi-people"></i>
+								Organisateur
+							</label>
+							<input type="text" class="form-control" id="organisateur" name="organisateur" required placeholder="Entrez le nom de l'organisateur">
+						</div>
+
+						<div class="mb-4">
+							<label for="capaciteMaximale" class="form-label">
+								<i class="bi bi-person-badge"></i>
+								Capacité maximale
+							</label>
+							<input type="number" class="form-control" id="capaciteMaximale" name="capaciteMaximale" required placeholder="Entrez la capacité maximale">
+						</div>
+
+						<div class="mb-4">
+							<label for="image" class="form-label">
+								<i class="bi bi-image"></i>
+								Image
+							</label>
+							<input type="file" class="form-control" id="image" name="image" accept="image/*">
+						</div>
+
+						<div class="d-flex gap-2">
+							<button type="submit" class="btn btn-primary">
+								<i class="bi bi-plus-circle"></i>
+								Ajouter l'événement
+							</button>
+							<a href="{{ path('app_events') }}" class="btn btn-secondary">
+								<i class="bi bi-x-circle"></i>
+								Annuler
+							</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	</body>
+</html>

@@ -1,0 +1,8 @@
+{
+    "require": {
+        "symfony/runtime": "^6.4"
+    },
+    "config": {
+        "preferred-install": "source"
+    }
+} 

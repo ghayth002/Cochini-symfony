@@ -1,0 +1,272 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la Réclamation - Coachini{% endblock %}
+
+{% block Hero_Section_Begin %}
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg" data-setbg="{{ asset('img/breadcrumb-bg.jpg') }}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb-text">
+                    <h2>Modifier Réclamation</h2>
+                    <div class="bt-option">
+                        <a href="/">Accueil</a>
+                        <a href="{{ path('app_reclamation_index') }}">Réclamations</a>
+                        <span>Modifier</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+{% endblock %}
+
+{% block body %}
+<section class="contact-section spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="leave-comment animate__animated animate__fadeInUp">
+                    <h3 class="mb-4"><i class="fa fa-edit mr-2"></i> Modifier la réclamation</h3>
+                    
+                    <div class="card mb-4 info-card animate__animated animate__fadeInUp animate__delay-1s">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fa fa-info-circle mr-2"></i> Informations importantes</h5>
+                            <p class="card-text">Vous pouvez modifier votre réclamation tant qu'elle n'a pas encore été traitée. Une fois traitée, il ne sera plus possible de la modifier.</p>
+                        </div>
+                    </div>
+                    
+                    {{ form_start(form, {'attr': {'class': 'comment-form'}}) }}
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group animate__animated animate__fadeInUp animate__delay-1s">
+                                    {{ form_label(form.typeR) }}
+                                    {{ form_widget(form.typeR, {'attr': {'class': 'form-control-animated'}}) }}
+                                    {{ form_errors(form.typeR) }}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group animate__animated animate__fadeInUp animate__delay-2s">
+                                    {{ form_label(form.coach) }}
+                                    {{ form_widget(form.coach, {'attr': {'class': 'form-control-animated'}}) }}
+                                    {{ form_errors(form.coach) }}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group animate__animated animate__fadeInUp animate__delay-3s">
+                                    {{ form_label(form.description) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control-animated', 'placeholder': 'Décrivez votre problème en détail...'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="btn-container animate__animated animate__fadeInUp animate__delay-4s">
+                                    <button type="submit" class="primary-btn btn-hover">
+                                        <i class="fa fa-save mr-1"></i> Enregistrer les modifications
+                                    </button>
+                                    <a href="{{ path('app_reclamation_show', {'id': reclamation.idReclamation}) }}" class="btn btn-secondary btn-hover">
+                                        <i class="fa fa-times mr-1"></i> Annuler
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .contact-section {
+        background-color: #151515;
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .leave-comment {
+        background-color: #222;
+        padding: 35px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        color: #fff;
+    }
+    
+    .leave-comment:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        transform: translateY(-5px);
+    }
+    
+    .leave-comment h3 {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        color: #fff;
+    }
+    
+    .leave-comment h3 i {
+        margin-right: 10px;
+        color: #f36100;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 10px;
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control-animated {
+        height: auto;
+        padding: 15px;
+        border: 2px solid #444;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        width: 100%;
+        background-color: #333;
+        color: #fff;
+    }
+    
+    .form-control-animated:focus {
+        border-color: #f36100;
+        box-shadow: 0 0 10px rgba(243, 97, 0, 0.25);
+        transform: translateY(-3px);
+    }
+    
+    textarea.form-control-animated {
+        min-height: 180px;
+        resize: vertical;
+    }
+    
+    .btn-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .info-card {
+        background-color: #333;
+        border: none;
+        border-left: 4px solid #f36100;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        color: #aaa;
+    }
+    
+    .info-card .card-body {
+        padding: 20px;
+        background-color: #333;
+    }
+    
+    .info-card .card-title {
+        color: #f36100;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-card .card-title i {
+        margin-right: 10px;
+    }
+    
+    .primary-btn {
+        background: #f36100;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+    
+    .primary-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(243, 97, 0, 0.3);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .leave-comment {
+            padding: 25px;
+        }
+        
+        .btn-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-secondary {
+            margin-top: 15px;
+        }
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add focus effect to form fields
+        const formFields = document.querySelectorAll('.form-control-animated');
+        
+        formFields.forEach(field => {
+            // Focus effect
+            field.addEventListener('focus', function() {
+                this.parentElement.querySelector('label')?.classList.add('text-primary');
+            });
+            
+            field.addEventListener('blur', function() {
+                this.parentElement.querySelector('label')?.classList.remove('text-primary');
+            });
+        });
+        
+        // Add hover effect to buttons
+        const buttons = document.querySelectorAll('.btn-hover');
+        buttons.forEach(button => {
+            button.addEventListener('mouseover', function() {
+                this.classList.add('animate__animated', 'animate__pulse');
+            });
+            button.addEventListener('mouseout', function() {
+                this.classList.remove('animate__animated', 'animate__pulse');
+            });
+        });
+    });
+</script>
+{% endblock %} 

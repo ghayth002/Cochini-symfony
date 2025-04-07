@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard - Coachini{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap">
+    {% block stylesheets %}{% endblock %}
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            background: #000000;
+            padding: 10px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .brand-wrapper {
+            padding: 20px 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .brand-logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        .admin-badge {
+            background-color: #f36100;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #b3b3b3;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            color: #fff;
+            background: rgba(243, 97, 0, 0.7);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main content */
+        .content-wrapper {
+            margin-left: 250px;
+            min-height: 100vh;
+            transition: all 0.3s;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .content-header {
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .content-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Content */
+        .content {
+            padding: 15px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            padding: 10px 20px;
+            margin-bottom: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .user-menu .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+        
+        /* Cards */
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background-color: #f36100;
+            border-color: #f36100;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e05a00;
+            border-color: #e05a00;
+        }
+        
+        /* Tables */
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        .table th {
+            font-weight: 600;
+            border-top: none;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand-wrapper">
+            <a href="{{ path('app_admin_reclamation_index') }}">
+                <img src="{{asset('img/logoo.png')}}" alt="Coachini" class="brand-logo">
+                <div class="admin-badge">Administration</div>
+            </a>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{{ path('app_admin_reclamation_index') }}"><i class="fas fa-exclamation-circle"></i> Réclamations</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Utilisateurs</a></li>
+            <li><a href="#"><i class="fas fa-dumbbell"></i> Coaches</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Événements</a></li>
+            <li><a href="#"><i class="fas fa-shopping-cart"></i> Produits</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Paramètres</a></li>
+            <li><a href="#"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+        </ul>
+    </div>
+    
+    <div class="content-wrapper">
+        <nav class="navbar">
+            <button class="btn btn-link" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="user-info ml-auto">
+                <img src="{{ asset('img/admin-avatar.jpg') }}" alt="Admin">
+                <div>
+                    <span class="d-block font-weight-bold">Admin</span>
+                    <small class="text-muted">Administrateur</small>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active">{% block breadcrumb %}Dashboard{% endblock %}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% block body %}{% endblock %}
+        </div>
+        
+        <footer class="footer">
+            <p>&copy; 2024 Coachini Administration. Tous droits réservés.</p>
+        </footer>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $(".sidebar").toggleClass("d-none d-md-block");
+                $(".content-wrapper").toggleClass("margin-left-0");
+            });
+        });
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html> 
