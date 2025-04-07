@@ -13,6 +13,16 @@ app_reclamation_show:
     controller: App\Controller\ReclamationController::show
     methods: [GET]
 
+app_reclamation_edit:
+    path: /reclamation/{id}/edit
+    controller: App\Controller\ReclamationController::edit
+    methods: [GET, POST]
+
+app_reclamation_delete:
+    path: /reclamation/{id}/delete
+    controller: App\Controller\ReclamationController::delete
+    methods: [POST]
+
 app_admin_reclamation_index:
     path: /admin/reclamation
     controller: App\Controller\ReclamationController::adminIndex

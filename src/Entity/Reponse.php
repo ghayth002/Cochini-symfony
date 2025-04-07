@@ -46,7 +46,7 @@ class Reponse
         return $this;
     }
 
-    #[ORM\Column(type: 'date', nullable: true)]
+    #[ORM\Column(name: 'date_reponse', type: 'date', nullable: true)]
     #[Assert\NotNull(message: 'La date de réponse est requise.')]
     #[Assert\Type("\DateTimeInterface", message: 'La date doit être valide.')]
     private ?\DateTimeInterface $Date_reponse = null;
@@ -62,7 +62,7 @@ class Reponse
         return $this;
     }
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(name: 'contenu', type: 'text', nullable: true)]
     #[Assert\NotBlank(message: 'Le contenu de la réponse ne peut pas être vide.')]
     #[Assert\Length(
         min: 5,
@@ -83,13 +83,13 @@ class Reponse
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: false)]
+    #[ORM\Column(name: 'status', type: 'string', nullable: false, options: ['default' => 'valider'])]
     #[Assert\NotBlank(message: 'Le statut de la réponse doit être spécifié.')]
     #[Assert\Choice(
         choices: ['en attente', 'valider'],
         message: 'Le statut doit être soit "en attente", soit "valider".'
     )]
-    private ?string $status = null;
+    private ?string $status = 'valider';
 
     public function getStatus(): ?string
     {

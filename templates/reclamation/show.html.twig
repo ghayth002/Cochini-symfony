@@ -75,9 +75,14 @@
                                     <a href="{{ path('app_reclamation_edit', {'id': reclamation.idReclamation}) }}" class="btn btn-sm btn-primary btn-icon btn-hover">
                                         <i class="fa fa-edit icon-highlight"></i> Modifier
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-danger btn-icon btn-hover ml-2" data-toggle="modal" data-target="#deleteModal">
-                                        <i class="fa fa-trash icon-highlight"></i> Supprimer
-                                    </button>
+                                    
+                                    <!-- Direct delete form - Keeping only this one -->
+                                    <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.idReclamation}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.idReclamation) }}">
+                                        <button type="submit" class="btn btn-sm btn-danger btn-icon btn-hover ml-2" title="Suppression">
+                                            Supprimer
+                                        </button>
+                                    </form>
                                 </div>
                                 {% endif %}
                             </div>
@@ -135,22 +140,32 @@
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    Confirmer la suppression
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.</p>
+                <div class="text-center mb-3">
+                    <!-- Trash icon removed -->
+                </div>
+                <p class="text-center">Êtes-vous sûr de vouloir supprimer la réclamation #{{ reclamation.idReclamation }} ?</p>
+                <p class="text-center"><small class="text-warning">Cette action est irréversible.</small></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.idReclamation}) }}" class="d-inline">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Annuler
+                </button>
+                <form id="delete-form-detail" method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.idReclamation}) }}" class="d-inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.idReclamation) }}">
-                    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                    <button type="submit" class="btn btn-danger">
+                        Confirmer la suppression
+                    </button>
                 </form>
             </div>
         </div>
@@ -158,6 +173,62 @@
 </div>
 
 <style>
+    /* Enhanced modal styling for better visibility */
+    .modal {
+        z-index: 1060 !important; /* Higher z-index */
+    }
+    
+    .modal-backdrop {
+        z-index: 1050 !important;
+        opacity: 0.8 !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .modal-content {
+        background-color: #222;
+        color: #fff;
+        border-radius: 10px;
+        border: 3px solid #f36100; /* Thicker border */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important; /* Stronger shadow */
+        transform: scale(1.05); /* Slightly larger */
+    }
+    
+    .modal-dialog {
+        margin-top: 10vh;
+        max-width: 500px;
+    }
+    
+    .modal-header.bg-danger {
+        background-color: #dc3545 !important;
+        color: white !important;
+        font-weight: bold;
+    }
+    
+    .modal-body {
+        padding: 30px;
+    }
+    
+    .modal-footer {
+        padding: 15px 20px;
+    }
+    
+    /* Fix for buttons in modal */
+    .modal-footer .btn {
+        padding: 10px 20px;
+        font-weight: bold;
+    }
+    
+    /* Animation for attention */
+    @keyframes modal-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(243, 97, 0, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(243, 97, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(243, 97, 0, 0); }
+    }
+    
+    .modal.show .modal-content {
+        animation: modal-pulse 2s infinite;
+    }
+
     .blog-details-section {
         padding-top: 100px;
         padding-bottom: 100px;
@@ -583,34 +654,14 @@
         border-color: #bd2130;
     }
     
-    .modal-content {
-        background-color: #333;
-        color: #fff;
-        border-radius: 10px;
-        border: 1px solid #444;
-    }
-    
-    .modal-header {
-        border-bottom: 1px solid #444;
-        background-color: #222;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-    
-    .modal-footer {
-        border-top: 1px solid #444;
-        background-color: #222;
-        border-bottom-left-radius: 10px;
-        border-bottom-right-radius: 10px;
-    }
-    
     .close {
-        color: #fff;
+        color: #f36100;
         text-shadow: none;
+        opacity: 1;
     }
     
     .close:hover {
-        color: #35b04c;
+        color: #fff;
     }
     
     .icon-highlight {
@@ -665,4 +716,116 @@
         });
     });
 </script>
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function() {
+            // Check if Bootstrap's modal plugin is available
+            if (typeof $.fn.modal !== 'function') {
+                console.error('Bootstrap modal plugin is not available!');
+                // Use direct delete form instead
+                $('.btn-danger[data-toggle="modal"]').hide();
+                return;
+            }
+            
+            // Add manual click handlers for delete buttons
+            $('.btn-sm.btn-danger[data-toggle="modal"]').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Show the modal with jQuery
+                $('#deleteModal')
+                    .css('display', 'block')
+                    .addClass('show');
+                
+                // Add backdrop
+                $('body')
+                    .addClass('modal-open')
+                    .append('<div class="modal-backdrop fade show"></div>');
+                
+                console.log('Manual modal trigger clicked');
+            });
+            
+            // Enhanced modal display functionality
+            $('[data-toggle="modal"]').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var targetModal = $(this).data('target');
+                console.log('Modal trigger clicked for: ' + targetModal);
+                
+                // Remove any existing modals and backdrops
+                $('.modal-backdrop').remove();
+                
+                // Force show the modal
+                $(targetModal)
+                    .css('display', 'block')
+                    .addClass('show')
+                    .attr('aria-hidden', 'false')
+                    .removeAttr('aria-hidden');
+                
+                // Add backdrop
+                $('body')
+                    .addClass('modal-open')
+                    .append('<div class="modal-backdrop fade show"></div>');
+                
+                // Prevent scrolling
+                $('body').css('overflow', 'hidden');
+                
+                // Add event listener for close button
+                $(targetModal).find('[data-dismiss="modal"]').on('click', function() {
+                    closeModal(targetModal);
+                });
+                
+                // Add event listener for clicking outside modal
+                $(document).on('click', '.modal-backdrop', function() {
+                    closeModal(targetModal);
+                });
+                
+                // Add event listener for ESC key
+                $(document).on('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeModal(targetModal);
+                    }
+                });
+                
+                // Handle form submission in modal
+                $(targetModal).find('form').on('submit', function(e) {
+                    console.log('Form being submitted: ' + $(this).attr('id'));
+                });
+            });
+            
+            // Function to close modal
+            function closeModal(modalId) {
+                $(modalId)
+                    .removeClass('show')
+                    .attr('aria-hidden', 'true')
+                    .css('display', 'none');
+                
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css('overflow', '');
+                
+                // Remove event listeners
+                $(document).off('click', '.modal-backdrop');
+                $(document).off('keydown');
+            }
+            
+            // Direct delete button handling without modal (as fallback)
+            $('.btn-danger[type="submit"]').on('click', function(e) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.')) {
+                    var form = $(this).closest('form');
+                    console.log('Direct delete form submission: ' + form.attr('id'));
+                    form.submit();
+                } else {
+                    e.preventDefault();
+                }
+            });
+            
+            // Add some console logging to debug modal issues
+            console.log('Modal in DOM:', $('#deleteModal').length);
+            console.log('Bootstrap modal plugin available:', typeof $.fn.modal === 'function');
+            console.log('jQuery version:', $.fn.jquery);
+        });
+    </script>
+{% endblock %}
 {% endblock %} 

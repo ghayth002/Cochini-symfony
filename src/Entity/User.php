@@ -27,7 +27,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: 'Nom', type: 'string', nullable: true)]
     private ?string $Nom = null;
 
     public function getNom(): ?string
@@ -41,7 +41,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: 'Prenom', type: 'string', nullable: true)]
     private ?string $Prenom = null;
 
     public function getPrenom(): ?string
@@ -55,7 +55,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: 'Image', type: 'string', nullable: true)]
     private ?string $Image = null;
 
     public function getImage(): ?string
@@ -69,7 +69,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: 'Email', type: 'string', nullable: true)]
     private ?string $Email = null;
 
     public function getEmail(): ?string
@@ -83,7 +83,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: 'MDP', type: 'string', nullable: true)]
     private ?string $MDP = null;
 
     public function getMDP(): ?string
@@ -97,7 +97,7 @@ class User
         return $this;
     }
 
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'phoneNumber', type: 'string', length: 20, nullable: true)]
     private ?string $phoneNumber = null;
 
     public function getPhoneNumber(): ?string

@@ -26,6 +26,7 @@ class ReclamationRepository extends ServiceEntityRepository
     public function findByDateRange(?\DateTime $startDate = null, ?\DateTime $endDate = null): array
     {
         $queryBuilder = $this->createQueryBuilder('r')
+            ->select('r.IdReclamation', 'r.description', 'r.typeR', 'r.date', 'r.statut', 'r.coach', 'r.adherent')
             ->orderBy('r.date', 'DESC');
         
         if ($startDate) {

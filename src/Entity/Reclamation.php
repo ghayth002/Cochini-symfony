@@ -18,7 +18,7 @@ class Reclamation
     #[ORM\Column(name: 'IdReclamation', type: 'integer')]
     private ?int $IdReclamation = null;
 
-    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
+    #[ORM\Column(name: 'statut', type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $statut = false;
 
     public function getIdReclamation(): ?int
@@ -64,7 +64,7 @@ class Reclamation
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(name: 'typeR', type: 'string', nullable: true)]
     #[Assert\NotBlank(message: 'Le type de réclamation doit être spécifié.')]
     private ?string $typeR = null;
 
