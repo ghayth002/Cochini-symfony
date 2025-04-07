@@ -38,27 +38,66 @@
                         </div>
                     </div>
                     
-                    {{ form_start(form, {'attr': {'class': 'comment-form'}}) }}
+                    {% if form.vars.errors|length > 0 %}
+                    <div class="alert alert-danger mb-4 animate__animated animate__headShake">
+                        <i class="fa fa-exclamation-triangle mr-2"></i> <strong>Des erreurs ont été trouvées dans votre formulaire</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for error in form.vars.errors %}
+                                <li>{{ error.message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    {{ form_start(form, {'attr': {'class': 'comment-form', 'novalidate': 'novalidate'}}) }}
                         <div class="row">
                             <div class="col-lg-12">
-                                <div class="form-group animate__animated animate__fadeInUp animate__delay-1s">
+                                <div class="form-group animate__animated animate__fadeInUp animate__delay-1s {% if form.typeR.vars.errors|length > 0 %}has-error{% endif %}">
                                     {{ form_label(form.typeR) }}
-                                    {{ form_widget(form.typeR, {'attr': {'class': 'form-control-animated'}}) }}
-                                    {{ form_errors(form.typeR) }}
+                                    {{ form_widget(form.typeR, {'attr': {'class': 'form-control-animated ' ~ (form.typeR.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+                                    {% if form.typeR.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.typeR.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.typeR.vars.help %}
+                                        <small class="form-text text-muted">{{ form.typeR.vars.help }}</small>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-lg-12">
-                                <div class="form-group animate__animated animate__fadeInUp animate__delay-2s">
+                                <div class="form-group animate__animated animate__fadeInUp animate__delay-2s {% if form.coach.vars.errors|length > 0 %}has-error{% endif %}">
                                     {{ form_label(form.coach) }}
-                                    {{ form_widget(form.coach, {'attr': {'class': 'form-control-animated'}}) }}
-                                    {{ form_errors(form.coach) }}
+                                    {{ form_widget(form.coach, {'attr': {'class': 'form-control-animated ' ~ (form.coach.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+                                    {% if form.coach.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.coach.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.coach.vars.help %}
+                                        <small class="form-text text-muted">{{ form.coach.vars.help }}</small>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-lg-12">
-                                <div class="form-group animate__animated animate__fadeInUp animate__delay-3s">
+                                <div class="form-group animate__animated animate__fadeInUp animate__delay-3s {% if form.description.vars.errors|length > 0 %}has-error{% endif %}">
                                     {{ form_label(form.description) }}
-                                    {{ form_widget(form.description, {'attr': {'class': 'form-control-animated', 'placeholder': 'Décrivez votre problème en détail...'}}) }}
-                                    {{ form_errors(form.description) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control-animated ' ~ (form.description.vars.errors|length > 0 ? 'is-invalid' : ''), 'placeholder': 'Décrivez votre problème en détail...'}}) }}
+                                    {% if form.description.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.description.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.description.vars.help %}
+                                        <small class="form-text text-muted">{{ form.description.vars.help }}</small>
+                                    {% endif %}
+                                    <div class="char-counter">0/<span class="max-length">2000</span></div>
                                 </div>
                             </div>
                             <div class="col-lg-12">
@@ -81,12 +120,13 @@
 
 <style>
     .leave-comment {
-        background-color: #fff;
+        background-color: #222;
         padding: 35px;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         margin-bottom: 30px;
+        color: #fff;
     }
     
     .leave-comment:hover {
@@ -98,6 +138,7 @@
         margin-bottom: 20px;
         display: flex;
         align-items: center;
+        color: #fff;
     }
     
     .leave-comment h3 i {
@@ -107,30 +148,47 @@
     
     .form-group {
         margin-bottom: 25px;
+        position: relative;
     }
     
     .form-group label {
         font-weight: 600;
-        color: #111;
+        color: #fff;
         margin-bottom: 10px;
         display: block;
         transition: all 0.3s ease;
     }
     
+    .form-group label:after {
+        content: " *";
+        color: #f36100;
+    }
+    
+    .form-group label[for="reclamation_coach"]:after {
+        content: "";
+    }
+    
     .form-control-animated {
         height: auto;
         padding: 15px;
-        border: 2px solid #e1e1e1;
+        border: 2px solid #444;
         border-radius: 10px;
         transition: all 0.3s ease;
         font-size: 16px;
         width: 100%;
+        background-color: #333;
+        color: #fff;
     }
     
     .form-control-animated:focus {
         border-color: #f36100;
         box-shadow: 0 0 10px rgba(243, 97, 0, 0.25);
         transform: translateY(-3px);
+    }
+    
+    .form-control-animated.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.25);
     }
     
     textarea.form-control-animated {
@@ -171,15 +229,17 @@
     }
     
     .info-card {
-        background-color: #f8f9fa;
+        background-color: #333;
         border: none;
         border-left: 4px solid #f36100;
         border-radius: 10px;
         margin-bottom: 25px;
+        color: #ddd;
     }
     
     .info-card .card-body {
         padding: 20px;
+        background-color: #333;
     }
     
     .info-card .card-title {
@@ -203,9 +263,47 @@
     .char-counter {
         position: absolute;
         right: 15px;
-        bottom: 15px;
+        bottom: -22px;
         font-size: 12px;
-        color: #6c757d;
+        color: #aaa;
+    }
+    
+    /* Error styles */
+    .has-error label {
+        color: #dc3545;
+    }
+    
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 80%;
+        color: #dc3545;
+        animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+        0%, 100% {transform: translateX(0);}
+        10%, 30%, 50%, 70%, 90% {transform: translateX(-5px);}
+        20%, 40%, 60%, 80% {transform: translateX(5px);}
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .alert-danger ul {
+        padding-left: 25px;
+    }
+    
+    /* Form text helpers */
+    .form-text {
+        margin-top: 5px;
+        color: #888 !important;
     }
     
     /* Responsive adjustments */
@@ -242,32 +340,107 @@
                 this.parentElement.querySelector('label')?.classList.remove('text-primary');
             });
             
-            // For textarea, add character counter
+            // For textarea, update character counter
             if (field.tagName === 'TEXTAREA') {
-                const maxLength = 500;
-                field.maxLength = maxLength;
-                
-                // Create counter element
-                const counter = document.createElement('span');
-                counter.className = 'char-counter';
-                counter.innerHTML = `0/${maxLength}`;
-                field.parentElement.style.position = 'relative';
-                field.parentElement.appendChild(counter);
-                
-                // Update counter on input
-                field.addEventListener('input', function() {
-                    const currentLength = this.value.length;
-                    counter.innerHTML = `${currentLength}/${maxLength}`;
+                const maxLength = parseInt(field.getAttribute('maxlength')) || 2000;
+                const counterElement = field.parentElement.querySelector('.char-counter');
+                if (counterElement) {
+                    counterElement.querySelector('.max-length').innerText = maxLength;
                     
-                    // Change color when approaching limit
-                    if (currentLength > maxLength * 0.8) {
-                        counter.style.color = '#f36100';
-                    } else {
-                        counter.style.color = '#6c757d';
+                    // Update counter with current value
+                    const updateCounter = function() {
+                        const currentLength = field.value.length;
+                        const counterText = counterElement.textContent;
+                        counterElement.innerHTML = `${currentLength}/<span class="max-length">${maxLength}</span>`;
+                        
+                        // Change color when approaching limit
+                        if (currentLength > maxLength * 0.8) {
+                            counterElement.style.color = '#dc3545';
+                        } else {
+                            counterElement.style.color = '#aaa';
+                        }
+                    };
+                    
+                    // Update counter immediately and on input
+                    updateCounter();
+                    field.addEventListener('input', updateCounter);
+                }
+            }
+            
+            // Real-time validation
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+        });
+        
+        // Validation function
+        function validateField(field) {
+            // Reset validation styling
+            field.classList.remove('is-invalid');
+            let feedbackElement = field.parentElement.querySelector('.invalid-feedback');
+            if (feedbackElement) {
+                feedbackElement.remove();
+            }
+            
+            let isValid = true;
+            let errorMessage = '';
+            
+            // Check required fields
+            const required = field.getAttribute('required') !== null;
+            if (required && !field.value.trim()) {
+                isValid = false;
+                errorMessage = field.getAttribute('data-validation-message') || 'Ce champ est requis.';
+            } 
+            // Check min/max length for textarea
+            else if (field.tagName === 'TEXTAREA') {
+                const minLength = parseInt(field.getAttribute('data-min-length')) || 10;
+                if (field.value.trim().length < minLength) {
+                    isValid = false;
+                    errorMessage = `Le texte doit comporter au moins ${minLength} caractères.`;
+                }
+            }
+            
+            // Apply validation styling
+            if (!isValid) {
+                field.classList.add('is-invalid');
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'invalid-feedback d-block';
+                feedbackDiv.textContent = errorMessage;
+                field.parentElement.appendChild(feedbackDiv);
+            }
+        }
+        
+        // Form submission validation
+        const form = document.querySelector('form.comment-form');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+                
+                // Validate all fields
+                const fields = form.querySelectorAll('.form-control-animated');
+                fields.forEach(field => {
+                    // Skip optional fields that are empty
+                    const isOptional = field.getAttribute('required') === null;
+                    if (isOptional && !field.value.trim()) {
+                        return;
+                    }
+                    
+                    validateField(field);
+                    if (field.classList.contains('is-invalid')) {
+                        isValid = false;
                     }
                 });
-            }
-        });
+                
+                if (!isValid) {
+                    event.preventDefault();
+                    // Scroll to the first error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        }
         
         // Add hover effect to buttons
         const buttons = document.querySelectorAll('.btn-hover');

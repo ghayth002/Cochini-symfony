@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\PdfService;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Form\FormError;
 
 class ReclamationController extends AbstractController
 {
@@ -45,11 +49,15 @@ class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($reclamation);
-            $entityManager->flush();
+            try {
+                $entityManager->persist($reclamation);
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Réclamation envoyée avec succès !');
-            return $this->redirectToRoute('app_reclamation_index');
+                $this->addFlash('success', 'Réclamation envoyée avec succès !');
+                return $this->redirectToRoute('app_reclamation_index');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de l\'enregistrement de la réclamation: ' . $e->getMessage());
+            }
         }
 
         return $this->render('reclamation/new.html.twig', [
@@ -97,10 +105,14 @@ class ReclamationController extends AbstractController
         $form->handleRequest($request);
         
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            
-            $this->addFlash('success', 'Réclamation modifiée avec succès !');
-            return $this->redirectToRoute('app_reclamation_show', ['id' => $reclamation->getIdReclamation()]);
+            try {
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Réclamation modifiée avec succès !');
+                return $this->redirectToRoute('app_reclamation_show', ['id' => $reclamation->getIdReclamation()]);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la modification de la réclamation: ' . $e->getMessage());
+            }
         }
         
         return $this->render('reclamation/edit.html.twig', [
@@ -127,10 +139,14 @@ class ReclamationController extends AbstractController
                 return $this->redirectToRoute('app_reclamation_index');
             }
             
-            $entityManager->remove($reclamation);
-            $entityManager->flush();
-            
-            $this->addFlash('success', 'Réclamation supprimée avec succès !');
+            try {
+                $entityManager->remove($reclamation);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Réclamation supprimée avec succès !');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la suppression de la réclamation: ' . $e->getMessage());
+            }
         }
         
         return $this->redirectToRoute('app_reclamation_index');
@@ -190,29 +206,53 @@ class ReclamationController extends AbstractController
         $reponse->setDateReponse(new \DateTime());
         $reponse->setStatus('en attente');
 
-        // Create a simple form for the response
+        // Create a form for the response with validation constraints
         $form = $this->createFormBuilder($reponse)
-            ->add('contenu', null, [
+            ->add('contenu', TextareaType::class, [
                 'label' => 'Votre réponse',
-                'attr' => ['rows' => 5]
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control',
+                    'placeholder' => 'Entrez votre réponse ici...',
+                    'maxlength' => 2000
+                ],
+                'help' => 'Minimum 5 caractères, maximum 2000 caractères.',
+                'constraints' => [
+                    new NotBlank(['message' => 'Le contenu de la réponse ne peut pas être vide.']),
+                    new Length([
+                        'min' => 5,
+                        'max' => 2000,
+                        'minMessage' => 'La réponse doit comporter au moins {{ limit }} caractères.',
+                        'maxMessage' => 'La réponse ne peut pas dépasser {{ limit }} caractères.'
+                    ])
+                ]
             ])
             ->getForm();
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Change status to "valider" when admin responds
-            $reponse->setStatus('valider');
-            
-            // Set the reclamation status to true (treated)
-            $reclamation->setStatut(true);
-            
-            $entityManager->persist($reponse);
-            $entityManager->persist($reclamation);
-            $entityManager->flush();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                try {
+                    // Change status to "valider" when admin responds
+                    $reponse->setStatus('valider');
+                    
+                    // Set the reclamation status to true (treated)
+                    $reclamation->setStatut(true);
+                    
+                    $entityManager->persist($reponse);
+                    $entityManager->persist($reclamation);
+                    $entityManager->flush();
 
-            $this->addFlash('success', 'Réponse envoyée avec succès !');
-            return $this->redirectToRoute('app_admin_reclamation_show', ['id' => $reclamation->getIdReclamation()]);
+                    $this->addFlash('success', 'Réponse envoyée avec succès !');
+                    return $this->redirectToRoute('app_admin_reclamation_show', ['id' => $reclamation->getIdReclamation()]);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Une erreur est survenue lors de l\'enregistrement de la réponse: ' . $e->getMessage());
+                }
+            } else {
+                // Add global form error message
+                $this->addFlash('error', 'Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.');
+            }
         }
 
         // Get all responses for this reclamation

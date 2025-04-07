@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\ReclamationRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 #[ORM\Table(name: 'reclamation')]
@@ -43,6 +44,13 @@ class Reclamation
     }
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: 'La description ne peut pas être vide.')]
+    #[Assert\Length(
+        min: 10,
+        max: 2000,
+        minMessage: 'La description doit comporter au moins {{ limit }} caractères.',
+        maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $description = null;
 
     public function getDescription(): ?string
@@ -57,6 +65,7 @@ class Reclamation
     }
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\NotBlank(message: 'Le type de réclamation doit être spécifié.')]
     private ?string $typeR = null;
 
     public function getTypeR(): ?string
@@ -86,6 +95,8 @@ class Reclamation
     }
 
     #[ORM\Column(type: 'date', nullable: false)]
+    #[Assert\NotNull(message: 'La date est requise.')]
+    #[Assert\Type("\DateTimeInterface", message: 'La date doit être valide.')]
     private ?\DateTimeInterface $date = null;
 
     public function getDate(): ?\DateTimeInterface
@@ -101,6 +112,7 @@ class Reclamation
 
     #[ORM\ManyToOne(targetEntity: User::class, cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'Id_adherent', referencedColumnName: 'id')]
+    #[Assert\NotNull(message: 'L\'adhérent doit être spécifié.')]
     private ?User $adherent = null;
 
     public function getAdherent(): ?User
