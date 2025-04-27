@@ -20,8 +20,8 @@ class EmailService
     // Mailtrap credentials - hardcoded
     private string $smtpHost = 'sandbox.smtp.mailtrap.io';
     private int $smtpPort = 2525;
-    private string $smtpUsername = '58758cbf58c694';
-    private string $smtpPassword = '310f4b9ed48247';
+    private string $smtpUsername = '77355df2c98c6c';
+    private string $smtpPassword = '7e0c8ab91bcb7d';
 
     public function __construct(
         ParameterBagInterface $params,
