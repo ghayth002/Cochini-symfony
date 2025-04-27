@@ -1,6 +1,8 @@
 monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - mailer
+        - email
 
 when@dev:
     monolog:
@@ -9,7 +11,7 @@ when@dev:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
-                channels: ["!event"]
+                channels: ["!event", "!mailer", "!email"]
             # uncomment to get logging in your browser
             # you may have to allow bigger header sizes in your Web server configuration
             #firephp:
@@ -22,6 +24,16 @@ when@dev:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!console"]
+            mailer:
+                type: stream
+                path: "%kernel.logs_dir%/mailer.log"
+                level: debug
+                channels: ["mailer"]
+            email:
+                type: stream
+                path: "%kernel.logs_dir%/email.log"
+                level: debug
+                channels: ["email"]
 
 when@test:
     monolog:
@@ -36,6 +48,16 @@ when@test:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
+            mailer:
+                type: stream
+                path: "%kernel.logs_dir%/mailer.log"
+                level: debug
+                channels: ["mailer"]
+            email:
+                type: stream
+                path: "%kernel.logs_dir%/email.log"
+                level: debug
+                channels: ["email"]
 
 when@prod:
     monolog:
@@ -60,3 +82,13 @@ when@prod:
                 channels: [deprecation]
                 path: php://stderr
                 formatter: monolog.formatter.json
+            mailer:
+                type: stream
+                path: "%kernel.logs_dir%/mailer.log"
+                level: debug
+                channels: ["mailer"]
+            email:
+                type: stream
+                path: "%kernel.logs_dir%/email.log"
+                level: debug
+                channels: ["email"]

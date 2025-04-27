@@ -21,6 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Form\FormError;
+use App\Service\EmailService;
 
 class ReclamationController extends AbstractController
 {
@@ -330,7 +331,7 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/admin/reclamation/{id}', name: 'app_admin_reclamation_show')]
-    public function adminShow(int $id, ReclamationRepository $reclamationRepository, Request $request, EntityManagerInterface $entityManager, ReponseRepository $reponseRepository): Response
+    public function adminShow(int $id, ReclamationRepository $reclamationRepository, Request $request, EntityManagerInterface $entityManager, ReponseRepository $reponseRepository, EmailService $emailService): Response
     {
         // Manually fetch the reclamation entity
         $reclamation = $reclamationRepository->find($id);
@@ -373,19 +374,86 @@ class ReclamationController extends AbstractController
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 try {
+                    // Log for debugging
+                    error_log('Processing valid form submission for reclamation #' . $id);
+                    
                     // Change status to "valider" when admin responds
                     $reponse->setStatus('valider');
                     
                     // Set the reclamation status to true (treated)
                     $reclamation->setStatut(true);
                     
+                    // First persist the entities
                     $entityManager->persist($reponse);
                     $entityManager->persist($reclamation);
                     $entityManager->flush();
+                    
+                    error_log('Reclamation and reponse saved to database');
 
-                    $this->addFlash('success', 'Réponse envoyée avec succès !');
+                    // Verify adherent has an email
+                    $adherent = $reclamation->getAdherent();
+                    $adherentEmail = $adherent ? $adherent->getEmail() : null;
+                    
+                    error_log('Adherent email: ' . ($adherentEmail ?: 'NULL'));
+                    
+                    // Then try to send the email - USE DIRECT APPROACH for debugging
+                    try {
+                        // 1. First try the email service
+                        error_log('Attempting to send email using EmailService');
+                        $emailService->sendReclamationResponseEmail($reclamation, $reponse);
+                        $this->addFlash('success', 'Réponse envoyée avec succès et un email de notification a été envoyé au client !');
+                        error_log('Email sent successfully using EmailService');
+                    } catch (\Exception $emailServiceException) {
+                        error_log('EmailService failed: ' . $emailServiceException->getMessage());
+                        
+                        // 2. If that fails, try direct mailer approach
+                        try {
+                            error_log('Attempting direct mailer send as fallback');
+                            
+                            // Get mailer DSN and from address
+                            $mailerDsn = $_ENV['MAILER_DSN'] ?? null;
+                            $fromEmail = $_ENV['MAILER_FROM'] ?? 'noreply@fithabit.com';
+                            
+                            if ($mailerDsn && $adherentEmail) {
+                                error_log('DSN and adherent email available, proceeding with direct send');
+                                
+                                // Create transport and mailer
+                                $transport = \Symfony\Component\Mailer\Transport::fromDsn($mailerDsn);
+                                $mailer = new \Symfony\Component\Mailer\Mailer($transport);
+                                
+                                // Build the email
+                                $email = new \Symfony\Component\Mime\Email();
+                                $email->from($fromEmail)
+                                      ->to($adherentEmail)
+                                      ->subject('Réponse à votre réclamation #' . $reclamation->getIdReclamation())
+                                      ->text('Votre réclamation a été traitée. Contenu: ' . $reponse->getContenu())
+                                      ->html($this->renderView('emails/reclamation_response.html.twig', [
+                                          'reclamation' => $reclamation,
+                                          'reponse' => $reponse
+                                      ]));
+                                
+                                // Send the email
+                                $mailer->send($email);
+                                
+                                error_log('Direct email send successful');
+                                $this->addFlash('info', 'Réponse enregistrée et email envoyé via méthode alternative.');
+                            } else {
+                                error_log('Missing DSN or adherent email for direct send');
+                                if (!$mailerDsn) error_log('DSN is missing');
+                                if (!$adherentEmail) error_log('Adherent email is missing');
+                                
+                                $this->addFlash('warning', 'Réponse enregistrée mais impossible d\'envoyer l\'email: Configuration incomplète');
+                            }
+                        } catch (\Exception $directMailerException) {
+                            error_log('Direct mailer also failed: ' . $directMailerException->getMessage());
+                            $this->addFlash('warning', 'Réponse enregistrée mais l\'envoi de l\'email a échoué malgré plusieurs tentatives: ' . $directMailerException->getMessage());
+                        }
+                    }
+                    
                     return $this->redirectToRoute('app_admin_reclamation_show', ['id' => $reclamation->getIdReclamation()]);
                 } catch (\Exception $e) {
+                    error_log('General exception: ' . $e->getMessage());
+                    error_log($e->getTraceAsString());
                     $this->addFlash('error', 'Une erreur est survenue lors de l\'enregistrement de la réponse: ' . $e->getMessage());
                 }
             } else {

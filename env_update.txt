@@ -1,0 +1,8 @@
+# Mailtrap configuration for Symfony Mailer
+MAILER_DSN=smtp://58758cbf58c694:310f4b9ed48247@sandbox.smtp.mailtrap.io:2525
+
+# Email sender address
+MAILER_FROM=reclamation@yourdomain.com
+
+# Debug mode for email testing
+MAILER_DEBUG=true 
