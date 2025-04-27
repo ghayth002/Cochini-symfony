@@ -25,6 +25,12 @@
             margin: 20px 0;
             color: #333;
         }
+        .subtitle {
+            font-size: 16px;
+            margin: 10px 0 20px 0;
+            color: #666;
+            font-style: italic;
+        }
         .summary {
             margin-bottom: 20px;
             padding: 15px;
@@ -72,6 +78,13 @@
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+        .filter-info {
+            background-color: #e8f4f8;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0099cc;
+            font-size: 14px;
+        }
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -83,6 +96,11 @@
         .page-break {
             page-break-after: always;
         }
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +110,15 @@
     </div>
     
     <div class="title">Liste des Réclamations</div>
+    
+    {% if filterActive %}
+        <div class="filter-info">
+            <strong>Filtrage par date :</strong> 
+            {% if startDate %}À partir du {{ startDate|date('d/m/Y') }}{% endif %}
+            {% if startDate and endDate %} jusqu'au {% endif %}
+            {% if endDate %}{{ endDate|date('d/m/Y') }}{% endif %}
+        </div>
+    {% endif %}
     
     <div class="summary">
         <div class="summary-item">
@@ -108,50 +135,57 @@
         </div>
     </div>
     
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Adhérent</th>
-                <th>Coach concerné</th>
-                <th>Description</th>
-                <th>Statut</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for reclamation in reclamations %}
+    {% if reclamations|length > 0 %}
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ reclamation.idReclamation }}</td>
-                    <td>{{ reclamation.date|date('d/m/Y') }}</td>
-                    <td>{{ reclamation.typeR }}</td>
-                    <td>
-                        {% if reclamation.adherent %}
-                            {{ reclamation.adherent.nom }} {{ reclamation.adherent.prenom }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if reclamation.coach %}
-                            {{ reclamation.coach.nom }} {{ reclamation.coach.prenom }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>{{ reclamation.description|striptags|slice(0, 50) }}{% if reclamation.description|length > 50 %}...{% endif %}</td>
-                    <td>
-                        {% if reclamation.statut %}
-                            <span class="status status-success">Traitée</span>
-                        {% else %}
-                            <span class="status status-warning">En cours</span>
-                        {% endif %}
-                    </td>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Adhérent</th>
+                    <th>Coach concerné</th>
+                    <th>Description</th>
+                    <th>Statut</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for reclamation in reclamations %}
+                    <tr>
+                        <td>{{ reclamation.idReclamation }}</td>
+                        <td>{{ reclamation.date|date('d/m/Y') }}</td>
+                        <td>{{ reclamation.typeR }}</td>
+                        <td>
+                            {% if reclamation.adherent %}
+                                {{ reclamation.adherent.nom }} {{ reclamation.adherent.prenom }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if reclamation.coach %}
+                                {{ reclamation.coach.nom }} {{ reclamation.coach.prenom }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ reclamation.description|striptags|slice(0, 50) }}{% if reclamation.description|length > 50 %}...{% endif %}</td>
+                        <td>
+                            {% if reclamation.statut %}
+                                <span class="status status-success">Traitée</span>
+                            {% else %}
+                                <span class="status status-warning">En cours</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <h3>Aucune réclamation trouvée</h3>
+            <p>Aucune réclamation ne correspond aux critères de recherche spécifiés.</p>
+        </div>
+    {% endif %}
     
     <div class="footer">
         <p>Document généré le {{ "now"|date('d/m/Y à H:i') }} - Coachini Administration</p>

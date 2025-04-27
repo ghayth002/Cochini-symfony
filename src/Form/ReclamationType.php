@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use App\Validator\Constraints\NoProfanity;
 
 class ReclamationType extends AbstractType
 {
@@ -27,7 +28,7 @@ class ReclamationType extends AbstractType
                     'maxlength' => 2000,
                     'data-validation-message' => 'La description est requise et doit comporter entre 10 et 2000 caractères.'
                 ],
-                'help' => 'Minimum 10 caractères, maximum 2000 caractères.',
+                'help' => 'Minimum 10 caractères, maximum 2000 caractères. Les mots inappropriés ne sont pas acceptés.',
                 'required' => true,
                 'constraints' => [
                     new NotBlank(['message' => 'La description ne peut pas être vide.']),
@@ -36,7 +37,8 @@ class ReclamationType extends AbstractType
                         'max' => 2000,
                         'minMessage' => 'La description doit comporter au moins {{ limit }} caractères.',
                         'maxMessage' => 'La description ne peut pas dépasser {{ limit }} caractères.'
-                    ])
+                    ]),
+                    new NoProfanity()
                 ]
             ])
             ->add('typeR', ChoiceType::class, [

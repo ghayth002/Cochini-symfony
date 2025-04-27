@@ -10,6 +10,7 @@ use App\Form\ReponseType;
 use App\Repository\ReclamationRepository;
 use App\Repository\ReponseRepository;
 use App\Repository\UserRepository;
+use App\Service\BadWordApiService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +36,7 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/reclamation/new', name: 'app_reclamation_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository, BadWordApiService $badWordApiService): Response
     {
         $reclamation = new Reclamation();
         
@@ -64,6 +65,23 @@ class ReclamationController extends AbstractController
                 if ($form->get('coach')->getData() === null) {
                     // If no coach was selected, use the default one
                     $reclamation->setCoach($user);
+                }
+                
+                // Additional profanity check with detailed feedback
+                $description = $reclamation->getDescription();
+                $profanityCheck = $badWordApiService->checkProfanity($description);
+                
+                if ($profanityCheck['success'] && $profanityCheck['hasProfanity']) {
+                    // Add form error with specific message about profanity
+                    $form->get('description')->addError(new FormError('Votre texte contient des mots inappropriés. Veuillez utiliser un langage respectueux.'));
+                    
+                    // Display the filtered version as suggestion
+                    $this->addFlash('warning', 'Suggestion de texte filtré: ' . $profanityCheck['filteredText']);
+                    
+                    // Return the form with errors
+                    return $this->render('reclamation/new.html.twig', [
+                        'form' => $form->createView(),
+                    ]);
                 }
                 
                 // Ensure typeR matches one of the enum values in the database
@@ -123,7 +141,7 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/reclamation/{id}/edit', name: 'app_reclamation_edit')]
-    public function edit(Request $request, int $id, ReclamationRepository $reclamationRepository, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, int $id, ReclamationRepository $reclamationRepository, EntityManagerInterface $entityManager, BadWordApiService $badWordApiService): Response
     {
         // Manually fetch the reclamation entity
         $reclamation = $reclamationRepository->find($id);
@@ -148,6 +166,24 @@ class ReclamationController extends AbstractController
                 if ($form->get('coach')->getData() === null) {
                     // If no coach was selected, use the adherent
                     $reclamation->setCoach($reclamation->getAdherent());
+                }
+                
+                // Additional profanity check with detailed feedback
+                $description = $reclamation->getDescription();
+                $profanityCheck = $badWordApiService->checkProfanity($description);
+                
+                if ($profanityCheck['success'] && $profanityCheck['hasProfanity']) {
+                    // Add form error with specific message about profanity
+                    $form->get('description')->addError(new FormError('Votre texte contient des mots inappropriés. Veuillez utiliser un langage respectueux.'));
+                    
+                    // Display the filtered version as suggestion
+                    $this->addFlash('warning', 'Suggestion de texte filtré: ' . $profanityCheck['filteredText']);
+                    
+                    // Return the form with errors
+                    return $this->render('reclamation/edit.html.twig', [
+                        'reclamation' => $reclamation,
+                        'form' => $form->createView(),
+                    ]);
                 }
                 
                 // Map the user-friendly type to database enum value
@@ -255,35 +291,34 @@ class ReclamationController extends AbstractController
         }
         
         try {
-            // Use a custom query to avoid column name issues
-            if ($startDate || $endDate) {
-                $qb = $entityManager->createQueryBuilder()
-                    ->select('r')
-                    ->from('App:Reclamation', 'r')
-                    ->orderBy('r.date', 'DESC');
-                
-                if ($startDate) {
-                    $startDate->setTime(0, 0, 0);
-                    $qb->andWhere('r.date >= :startDate')
-                       ->setParameter('startDate', $startDate);
-                }
-                
-                if ($endDate) {
-                    $endDate->setTime(23, 59, 59);
-                    $qb->andWhere('r.date <= :endDate')
-                       ->setParameter('endDate', $endDate);
-                }
-                
-                $reclamations = $qb->getQuery()->getResult();
-            } else {
-                // If no date filters, get all reclamations using direct query
-                $reclamations = $entityManager->createQuery(
-                    'SELECT r FROM App:Reclamation r ORDER BY r.date DESC'
-                )->getResult();
+            // Create a query builder for better control
+            $qb = $entityManager->createQueryBuilder();
+            $qb->select('r')
+               ->from(Reclamation::class, 'r')
+               ->orderBy('r.date', 'DESC');
+            
+            // Add date filters if provided
+            if ($startDate) {
+                $startDate->setTime(0, 0, 0);
+                $qb->andWhere('r.date >= :startDate')
+                   ->setParameter('startDate', $startDate);
             }
+            
+            if ($endDate) {
+                $endDate->setTime(23, 59, 59);
+                $qb->andWhere('r.date <= :endDate')
+                   ->setParameter('endDate', $endDate);
+            }
+            
+            // Execute the query
+            $reclamations = $qb->getQuery()->getResult();
+            
         } catch (\Exception $e) {
-            // Fallback to simple findAll if there's an issue with the query
-            $reclamations = $reclamationRepository->findAll();
+            // Log the error for debugging
+            error_log('Date filtering error: ' . $e->getMessage());
+            
+            // Fallback to getting all reclamations
+            $reclamations = $reclamationRepository->findBy([], ['date' => 'DESC']);
             $this->addFlash('warning', 'Filtrage de date temporairement indisponible. Affichage de toutes les réclamations.');
         }
 
@@ -370,23 +405,78 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/admin/reclamation/list/pdf', name: 'app_admin_reclamation_list_pdf')]
-    public function generateReclamationListPdf(ReclamationRepository $reclamationRepository, PdfService $pdfService): Response
+    public function generateReclamationListPdf(Request $request, ReclamationRepository $reclamationRepository, EntityManagerInterface $entityManager, PdfService $pdfService): Response
     {
-        // Get all reclamations
-        $reclamations = $reclamationRepository->findAll();
+        // Get date filter parameters from request
+        $startDate = null;
+        $endDate = null;
+        
+        if ($request->query->has('startDate') && $request->query->get('startDate')) {
+            try {
+                $startDate = new \DateTime($request->query->get('startDate'));
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+        
+        if ($request->query->has('endDate') && $request->query->get('endDate')) {
+            try {
+                $endDate = new \DateTime($request->query->get('endDate'));
+            } catch (\Exception $e) {
+                // Invalid date format, ignore
+            }
+        }
+        
+        try {
+            // Use the same query builder approach as in adminIndex
+            $qb = $entityManager->createQueryBuilder();
+            $qb->select('r')
+               ->from(Reclamation::class, 'r')
+               ->orderBy('r.date', 'DESC');
+            
+            if ($startDate) {
+                $startDate->setTime(0, 0, 0);
+                $qb->andWhere('r.date >= :startDate')
+                   ->setParameter('startDate', $startDate);
+            }
+            
+            if ($endDate) {
+                $endDate->setTime(23, 59, 59);
+                $qb->andWhere('r.date <= :endDate')
+                   ->setParameter('endDate', $endDate);
+            }
+            
+            $reclamations = $qb->getQuery()->getResult();
+            
+        } catch (\Exception $e) {
+            // Fallback to getting all reclamations
+            $reclamations = $reclamationRepository->findBy([], ['date' => 'DESC']);
+        }
         
         // Generate HTML content for PDF
         $html = $this->renderView('admin/reclamation/pdf_list_template.html.twig', [
-            'reclamations' => $reclamations
+            'reclamations' => $reclamations,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'filterActive' => ($startDate || $endDate)
         ]);
         
         // Generate the PDF
+        $filename = 'liste-reclamations';
+        if ($startDate && $endDate) {
+            $filename .= '-du-' . $startDate->format('d-m-Y') . '-au-' . $endDate->format('d-m-Y');
+        } elseif ($startDate) {
+            $filename .= '-depuis-' . $startDate->format('d-m-Y');
+        } elseif ($endDate) {
+            $filename .= '-jusquau-' . $endDate->format('d-m-Y');
+        }
+        
         return new Response(
             $pdfService->generateBinaryPDF($html),
             200,
             [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="liste-reclamations.pdf"'
+                'Content-Disposition' => 'attachment; filename="' . $filename . '.pdf"'
             ]
         );
     }
